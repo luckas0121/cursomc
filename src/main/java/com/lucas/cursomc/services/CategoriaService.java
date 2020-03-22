@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.lucas.cursomc.dao.CategoriaDao;
 import com.lucas.cursomc.domain.Categoria;
+import com.lucas.cursomc.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class CategoriaService {
@@ -14,9 +15,9 @@ public class CategoriaService {
 	@Autowired
 	private CategoriaDao categoriaDao;
 	
-	public Categoria find(Integer categoriaId) {
+	public Categoria find(Integer categoriaId){
 		Optional<Categoria> cat = categoriaDao.findById(categoriaId);
-		return cat.orElse(null);
+		return cat.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: "+ categoriaId+", Tipo: "+Categoria.class.getName()));
 	}
 	
 }
