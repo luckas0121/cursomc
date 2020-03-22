@@ -1,5 +1,6 @@
 package com.lucas.cursomc;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.lucas.cursomc.dao.CidadeDao;
 import com.lucas.cursomc.dao.ClienteDao;
 import com.lucas.cursomc.dao.EnderecoDao;
 import com.lucas.cursomc.dao.EstadoDao;
+import com.lucas.cursomc.dao.PagamentoDao;
+import com.lucas.cursomc.dao.PedidoDao;
 import com.lucas.cursomc.dao.ProdutoDao;
 import com.lucas.cursomc.domain.Categoria;
 import com.lucas.cursomc.domain.Cidade;
 import com.lucas.cursomc.domain.Cliente;
 import com.lucas.cursomc.domain.Endereco;
 import com.lucas.cursomc.domain.Estado;
+import com.lucas.cursomc.domain.Pagamento;
+import com.lucas.cursomc.domain.PagamentoComBoleto;
+import com.lucas.cursomc.domain.PagamentoComCartao;
+import com.lucas.cursomc.domain.Pedido;
 import com.lucas.cursomc.domain.Produto;
+import com.lucas.cursomc.domain.enums.EstadoPagamento;
 import com.lucas.cursomc.domain.enums.TipoCliente;
 
 @SpringBootApplication
@@ -36,6 +44,11 @@ public class CursomcApplication implements CommandLineRunner {
 	private ClienteDao clienteDao;
 	@Autowired
 	private EnderecoDao enderecoDao;
+	@Autowired
+	private PedidoDao pedidoDao;
+	@Autowired
+	private PagamentoDao pagamentoDao;
+	
 	
 	public static void main(String[] args) {
 		SpringApplication.run(CursomcApplication.class, args);
@@ -86,6 +99,23 @@ public class CursomcApplication implements CommandLineRunner {
 		
 		clienteDao.saveAll(Arrays.asList(cli1));
 		enderecoDao.saveAll(Arrays.asList(e1,e2));
+		
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:45"), cli1, e2);
+		
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+		ped2.setPagamento(pagto2);
+		
+		cli1.getPedidos().addAll(Arrays.asList(ped1,ped2));
+		
+		pedidoDao.saveAll(Arrays.asList(ped1,ped2));
+		pagamentoDao.saveAll(Arrays.asList(pagto1,pagto2));
 		
 	}
 	
